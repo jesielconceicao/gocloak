@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -859,6 +860,19 @@ func (client *gocloak) GetClientUserSessions(token, realm, clientID string) ([]*
 		return nil, err
 	}
 
+	return res, nil
+}
+
+// GetClientUserSessionsMax returns user sessions associated with the client
+func (client *gocloak) GetClientUserSessionsMax(token, realm, clientID string, maxResultsSize int) ([]*UserSessionRepresentation, error) {
+	var res []*UserSessionRepresentation
+	resp, err := client.getRequestWithBearerAuth(token).
+		SetResult(&res).
+		Get(client.getAdminRealmURL(realm, "clients", clientID, "user-sessions", "?max="+strconv.Itoa(maxResultsSize)))
+
+	if err := checkForError(resp, err); err != nil {
+		return nil, err
+	}
 	return res, nil
 }
 
